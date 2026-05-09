@@ -1,0 +1,35 @@
+#include <stdlib.h>
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* beautifulArray(int n, int* returnSize) {
+    *returnSize = n;
+    int* result = (int*)malloc(n * sizeof(int));
+    
+    // Base case
+    if (n == 1) {
+        result[0] = 1;
+        return result;
+    }
+
+    // Divide into odds and evens logic
+    int leftSize, rightSize;
+    int* leftHalf = beautifulArray((n + 1) / 2, &leftSize);
+    int* rightHalf = beautifulArray(n / 2, &rightSize);
+
+    // Combine: map leftHalf to odds (2x - 1) and rightHalf to evens (2x)
+    int idx = 0;
+    for (int i = 0; i < leftSize; i++) {
+        result[idx++] = 2 * leftHalf[i] - 1;
+    }
+    for (int i = 0; i < rightSize; i++) {
+        result[idx++] = 2 * rightHalf[i];
+    }
+
+    // Free the temporary recursive arrays
+    free(leftHalf);
+    free(rightHalf);
+
+    return result;
+}
