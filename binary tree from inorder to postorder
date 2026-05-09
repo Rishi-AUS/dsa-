@@ -1,0 +1,39 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ * int val;
+ * struct TreeNode *left;
+ * struct TreeNode *right;
+ * };
+ */
+
+struct TreeNode* helper(int* inorder, int inStart, int inEnd, int* postorder, int* postIdx) {
+    if (inStart > inEnd) return NULL;
+
+    // The root is the current last element in postorder traversal
+    int rootVal = postorder[*postIdx];
+    struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    root->val = rootVal;
+    (*postIdx)--;
+
+    // Find the index of the root in inorder array
+    int index = 0;
+    for (int i = inStart; i <= inEnd; i++) {
+        if (inorder[i] == rootVal) {
+            index = i;
+            break;
+        }
+    }
+
+    // IMPORTANT: Build right subtree before left subtree 
+    // because postorder is (Left, Right, Root) and we are moving backwards
+    root->right = helper(inorder, index + 1, inEnd, postorder, postIdx);
+    root->left = helper(inorder, inStart, index - 1, postorder, postIdx);
+
+    return root;
+}
+
+struct TreeNode* buildTree(int* inorder, int inorderSize, int* postorder, int postorderSize) {
+    int postIdx = postorderSize - 1;
+    return helper(inorder, 0, inorderSize - 1, postorder, &postIdx);
+}
