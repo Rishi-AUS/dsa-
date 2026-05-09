@@ -1,0 +1,36 @@
+#include <stdlib.h>
+
+int magicalString(int n) {
+    if (n <= 0) return 0;
+    if (n <= 3) return 1; // String starts "122...", first n=3 has one '1'
+
+    // Use a buffer to store the magical string characters
+    // Constraints say n <= 10^5
+    int* s = (int*)malloc((n + 1) * sizeof(int));
+    
+    // Initializing the first few elements to bootstrap the process
+    s[0] = 1; s[1] = 2; s[2] = 2;
+    
+    int head = 2; // Pointer to read the group lengths
+    int tail = 3; // Pointer to write the next characters
+    int num = 1;  // The character to be written (alternates between 1 and 2)
+    int result = 1; // Count of '1's (the first '1' is at s[0])
+
+    while (tail < n) {
+        // How many times should we write the current 'num'?
+        // This is determined by the value at s[head]
+        for (int i = 0; i < s[head]; i++) {
+            if (tail < n) {
+                s[tail] = num;
+                if (num == 1) result++;
+                tail++;
+            }
+        }
+        // Flip num between 1 and 2
+        num = num ^ 3; // Bitwise trick: 1^3 = 2, 2^3 = 1
+        head++;
+    }
+
+    free(s);
+    return result;
+}
