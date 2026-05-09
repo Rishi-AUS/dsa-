@@ -1,0 +1,54 @@
+#include <stdlib.h>
+
+long mergeAndCount(int* nums, int left, int mid, int right) {
+    long count = 0;
+    int j = mid + 1;
+
+    // 1. Count the reverse pairs
+    for (int i = left; i <= mid; i++) {
+        // Use long to prevent overflow during the 2 * nums[j] comparison
+        while (j <= right && (long)nums[i] > 2 * (long)nums[j]) {
+            j++;
+        }
+        count += (j - (mid + 1));
+    }
+
+    // 2. Standard merge sort logic to sort the array
+    int tempSize = right - left + 1;
+    int* temp = (int*)malloc(tempSize * sizeof(int));
+    int iPtr = left, jPtr = mid + 1, k = 0;
+
+    while (iPtr <= mid && jPtr <= right) {
+        if (nums[iPtr] <= nums[jPtr]) {
+            temp[k++] = nums[iPtr++];
+        } else {
+            temp[k++] = nums[jPtr++];
+        }
+    }
+
+    while (iPtr <= mid) temp[k++] = nums[iPtr++];
+    while (jPtr <= right) temp[k++] = nums[jPtr++];
+
+    for (int i = 0; i < tempSize; i++) {
+        nums[left + i] = temp[i];
+    }
+
+    free(temp);
+    return count;
+}
+
+long solve(int* nums, int left, int right) {
+    if (left >= right) return 0;
+    
+    int mid = left + (right - left) / 2;
+    long count = solve(nums, left, mid);
+    count += solve(nums, mid + 1, right);
+    count += mergeAndCount(nums, left, mid, right);
+    
+    return count;
+}
+
+int reversePairs(int* nums, int numsSize) {
+    if (numsSize == 0) return 0;
+    return (int)solve(nums, 0, numsSize - 1);
+}
