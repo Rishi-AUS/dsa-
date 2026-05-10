@@ -1,0 +1,43 @@
+#include <stdbool.h>
+#include <stdlib.h>
+
+typedef struct {
+    int key;
+    int value;
+} HashEntry;
+
+bool containsNearbyDuplicate(int* nums, int numsSize, int k) {
+    if (numsSize <= 1 || k <= 0) return false;
+
+    // Using a simple hash table with linear probing
+    int capacity = numsSize * 2; 
+    HashEntry* hashTable = (HashEntry*)calloc(capacity, sizeof(HashEntry));
+    bool* occupied = (bool*)calloc(capacity, sizeof(bool));
+
+    for (int i = 0; i < numsSize; i++) {
+        // Handle potential negative numbers for hashing
+        unsigned int hash = (unsigned int)nums[i] % capacity;
+        
+        // Linear probing to find the key or an empty slot
+        while (occupied[hash]) {
+            if (hashTable[hash].key == nums[i]) {
+                if (i - hashTable[hash].value <= k) {
+                    free(hashTable);
+                    free(occupied);
+                    return true;
+                }
+                break; // Found the key, update its index below
+            }
+            hash = (hash + 1) % capacity;
+        }
+
+        // Store or update the index
+        hashTable[hash].key = nums[i];
+        hashTable[hash].value = i;
+        occupied[hash] = true;
+    }
+
+    free(hashTable);
+    free(occupied);
+    return false;
+}
