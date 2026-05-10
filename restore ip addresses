@@ -1,0 +1,60 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+
+bool isValid(char* s, int start, int end) {
+    int len = end - start + 1;
+    if (len <= 0 || len > 3) return false;
+    if (len > 1 && s[start] == '0') return false; // Leading zero check
+    
+    int num = 0;
+    for (int i = start; i <= end; i++) {
+        num = num * 10 + (s[i] - '0');
+    }
+    return num >= 0 && num <= 255;
+}
+
+void backtrack(char* s, int start, int partCount, char** tempParts, 
+               char** results, int* returnSize) {
+    int n = strlen(s);
+
+    // Base case: if we found 4 parts
+    if (partCount == 4) {
+        if (start == n) { // and we used the whole string
+            char* ip = (char*)malloc(16 * sizeof(char)); // max: 255.255.255.255\0
+            sprintf(ip, "%s.%s.%s.%s", tempParts[0], tempParts[1], tempParts[2], tempParts[3]);
+            results[(*returnSize)++] = ip;
+        }
+        return;
+    }
+
+    // Try segments of length 1, 2, and 3
+    for (int len = 1; len <= 3; len++) {
+        if (start + len > n) break;
+
+        if (isValid(s, start, start + len - 1)) {
+            tempParts[partCount] = (char*)malloc((len + 1) * sizeof(char));
+            strncpy(tempParts[partCount], s + start, len);
+            tempParts[partCount][len] = '\0';
+
+            backtrack(s, start + len, partCount + 1, tempParts, results, returnSize);
+            
+            free(tempParts[partCount]); // Backtrack: clean up memory
+        }
+    }
+}
+
+char** restoreIpAddresses(char* s, int* returnSize) {
+    int n = strlen(s);
+    *returnSize = 0;
+    if (n < 4 || n > 12) return NULL;
+
+    // Maximum possible valid IPs is not very large, 100 is usually plenty
+    char** results = (char**)malloc(100 * sizeof(char*));
+    char* tempParts[4];
+
+    backtrack(s, 0, 0, tempParts, results, returnSize);
+
+    return results;
+}
