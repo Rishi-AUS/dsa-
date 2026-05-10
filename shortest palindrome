@@ -1,0 +1,52 @@
+#include <string.h>
+#include <stdlib.h>
+
+char* shortestPalindrome(char* s) {
+    int n = strlen(s);
+    if (n <= 1) return s;
+
+    long long forwardHash = 0;
+    long long backwardHash = 0;
+    long long power = 1;
+    
+    // Using a prime base and a large prime mod to avoid collisions
+    const int base = 31;
+    const int mod = 1e9 + 7;
+    int best_end = 0;
+
+    for (int i = 0; i < n; i++) {
+        int val = s[i] - 'a' + 1;
+        
+        // Forward: h = (h * base + new_char) % mod
+        forwardHash = (forwardHash * base + val) % mod;
+        
+        // Backward: h = (h + new_char * power) % mod
+        backwardHash = (backwardHash + (long long)val * power) % mod;
+        
+        // Update power for the next character
+        power = (power * base) % mod;
+
+        // If hashes match, index 0 to i is a palindrome
+        if (forwardHash == backwardHash) {
+            best_end = i;
+        }
+    }
+
+    // Characters that need to be added to the front
+    int remaining = n - 1 - best_end;
+    char* result = (char*)malloc(sizeof(char) * (n + remaining + 1));
+    
+    // 1. Copy the reversed suffix to the front
+    int k = 0;
+    for (int i = n - 1; i > best_end; i--) {
+        result[k++] = s[i];
+    }
+    
+    // 2. Copy the original string
+    for (int i = 0; i < n; i++) {
+        result[k++] = s[i];
+    }
+    
+    result[k] = '\0';
+    return result;
+}
