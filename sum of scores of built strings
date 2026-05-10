@@ -1,0 +1,34 @@
+#include <string.h>
+#include <stdlib.h>
+
+long long sumScores(char* s) {
+    int n = strlen(s);
+    if (n == 0) return 0;
+    
+    int* z = (int*)calloc(n, sizeof(int));
+    long long totalScore = n; // Start with the score for s_n (the full string)
+    
+    int l = 0, r = 0;
+    for (int i = 1; i < n; i++) {
+        // If i is within the current Z-box [l, r]
+        if (i <= r) {
+            z[i] = (r - i + 1 < z[i - l]) ? r - i + 1 : z[i - l];
+        }
+        
+        // Attempt to extend the Z-box manually
+        while (i + z[i] < n && s[z[i]] == s[i + z[i]]) {
+            z[i]++;
+        }
+        
+        // If we found a new Z-box that extends further to the right, update l and r
+        if (i + z[i] - 1 > r) {
+            l = i;
+            r = i + z[i] - 1;
+        }
+        
+        totalScore += z[i];
+    }
+    
+    free(z);
+    return totalScore;
+}
