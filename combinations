@@ -1,0 +1,42 @@
+#include <stdlib.h>
+#include <string.h>
+
+void backtrack(int n, int k, int start, int* currentCombo, int comboSize, 
+               int** result, int* returnSize, int* returnColumnSizes) {
+    // Goal: Found a combination of size k
+    if (comboSize == k) {
+        result[*returnSize] = (int*)malloc(k * sizeof(int));
+        memcpy(result[*returnSize], currentCombo, k * sizeof(int));
+        returnColumnSizes[*returnSize] = k;
+        (*returnSize)++;
+        return;
+    }
+
+    // Optimization: Only iterate if there are enough numbers left to reach size k
+    // (n - i + 1) is the number of elements left, (k - comboSize) is what we need
+    for (int i = start; i <= n - (k - comboSize) + 1; i++) {
+        currentCombo[comboSize] = i; // Make a choice
+        backtrack(n, k, i + 1, currentCombo, comboSize + 1, result, returnSize, returnColumnSizes);
+        // Backtrack: No explicit action needed here as we overwrite currentCombo[comboSize]
+    }
+}
+
+int** combine(int n, int k, int* returnSize, int** returnColumnSizes) {
+    // 1. Calculate total combinations (nCr) to allocate memory
+    // For n=20, k=10, max combinations is 184,756
+    int maxResults = 1;
+    for (int i = 0; i < k; i++) {
+        maxResults = maxResults * (n - i) / (i + 1);
+    }
+
+    int** result = (int**)malloc(maxResults * sizeof(int*));
+    *returnColumnSizes = (int*)malloc(maxResults * sizeof(int));
+    *returnSize = 0;
+
+    int* currentCombo = (int*)malloc(k * sizeof(int));
+
+    backtrack(n, k, 1, currentCombo, 0, result, returnSize, *returnColumnSizes);
+
+    free(currentCombo);
+    return result;
+}
