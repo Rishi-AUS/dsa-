@@ -1,0 +1,35 @@
+#include <stdlib.h>
+#include <stdbool.h>
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findSmallestSetOfVertices(int n, int** edges, int edgesSize, int* edgesColSize, int* returnSize) {
+    // 1. Create an array to track if a node has an incoming edge
+    // Using bool or char to save memory (0 = no in-edges, 1 = has in-edges)
+    char* hasInDegree = (char*)calloc(n, sizeof(char));
+    
+    // 2. Iterate through edges and mark the 'to' node (edges[i][1])
+    for (int i = 0; i < edgesSize; i++) {
+        int to = edges[i][1];
+        hasInDegree[to] = 1;
+    }
+    
+    // 3. Collect all nodes that were never marked (in-degree == 0)
+    int* result = (int*)malloc(n * sizeof(int));
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        if (hasInDegree[i] == 0) {
+            result[count++] = i;
+        }
+    }
+    
+    // 4. Update the return size and shrink the result array to the actual count
+    *returnSize = count;
+    result = (int*)realloc(result, count * sizeof(int));
+    
+    // Clean up temporary tracking array
+    free(hasInDegree);
+    
+    return result;
+}
