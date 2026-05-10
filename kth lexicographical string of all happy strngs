@@ -1,0 +1,43 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+void backtrack(int n, int* k, int index, char* current, char** result) {
+    // Base Case: If we've reached the target length
+    if (index == n) {
+        (*k)--; // Found one happy string
+        if (*k == 0) {
+            // This is the kth string, copy it to result
+            *result = (char*)malloc((n + 1) * sizeof(char));
+            strcpy(*result, current);
+        }
+        return;
+    }
+
+    // Try 'a', 'b', 'c' in lexicographical order
+    for (char c = 'a'; c <= 'c'; c++) {
+        // Condition: s[i] != s[i-1]
+        if (index == 0 || current[index - 1] != c) {
+            current[index] = c;
+            current[index + 1] = '\0';
+            
+            backtrack(n, k, index + 1, current, result);
+            
+            // If result is found, stop further recursion
+            if (*result != NULL) return;
+        }
+    }
+}
+
+char* getHappyString(int n, int k) {
+    char* result = NULL;
+    char* current = (char*)calloc(n + 1, sizeof(char));
+    
+    int tempK = k;
+    backtrack(n, &tempK, 0, current, &result);
+    
+    free(current);
+    
+    // If we finished and result is still NULL, there were fewer than k happy strings
+    return (result != NULL) ? result : "";
+}
