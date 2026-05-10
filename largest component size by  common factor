@@ -1,0 +1,73 @@
+#include <stdlib.h>
+#include <math.h>
+
+#define MAX_VAL 100001
+
+typedef struct {
+    int* parent;
+    int* size;
+} UnionFind;
+
+UnionFind* createUF(int n) {
+    UnionFind* uf = (UnionFind*)malloc(sizeof(UnionFind));
+    uf->parent = (int*)malloc(n * sizeof(int));
+    uf->size = (int*)malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) {
+        uf->parent[i] = i;
+        uf->size[i] = 1;
+    }
+    return uf;
+}
+
+int find(UnionFind* uf, int i) {
+    if (uf->parent[i] == i) return i;
+    return uf->parent[i] = find(uf, uf->parent[i]); // Path compression
+}
+
+void unite(UnionFind* uf, int i, int j) {
+    int rootI = find(uf, i);
+    int rootJ = find(uf, j);
+    if (rootI != rootJ) {
+        // Union by size
+        if (uf->size[rootI] < uf->size[rootJ]) {
+            uf->parent[rootI] = rootJ;
+            uf->size[rootJ] += uf->size[rootI];
+        } else {
+            uf->parent[rootJ] = rootI;
+            uf->size[rootI] += uf->size[rootJ];
+        }
+    }
+}
+
+int largestComponentSize(int* nums, int numsSize) {
+    UnionFind* uf = createUF(MAX_VAL);
+
+    // Union each number with its prime factors
+    for (int i = 0; i < numsSize; i++) {
+        int val = nums[i];
+        for (int f = 2; f * f <= val; f++) {
+            if (val % f == 0) {
+                unite(uf, nums[i], f);
+                while (val % f == 0) val /= f;
+            }
+        }
+        if (val > 1) unite(uf, nums[i], val);
+    }
+
+    // Count numbers in each component
+    int* counts = (int*)calloc(MAX_VAL, sizeof(int));
+    int maxComponent = 0;
+    for (int i = 0; i < numsSize; i++) {
+        int root = find(uf, nums[i]);
+        counts[root]++;
+        if (counts[root] > maxComponent) maxComponent = counts[root];
+    }
+
+    // Cleanup
+    free(counts);
+    free(uf->parent);
+    free(uf->size);
+    free(uf);
+
+    return maxComponent;
+}
