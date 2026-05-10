@@ -1,0 +1,31 @@
+#include <string.h>
+
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+int characterReplacement(char* s, int k) {
+    int counts[26] = {0}; // Frequency of each uppercase letter
+    int left = 0, maxFreq = 0, maxLen = 0;
+    int n = strlen(s);
+
+    for (int right = 0; right < n; right++) {
+        // Increment frequency of current character
+        counts[s[right] - 'A']++;
+        
+        // Update maxFreq (the count of the most frequent character in the current window)
+        maxFreq = MAX(maxFreq, counts[s[right] - 'A']);
+
+        // Current window length is (right - left + 1)
+        // If (length - maxFreq) > k, we have too many characters to replace
+        while ((right - left + 1) - maxFreq > k) {
+            counts[s[left] - 'A']--;
+            left++;
+            // Note: We don't strictly need to decrease maxFreq here. 
+            // The window only expands when we find a new maxFreq.
+        }
+
+        // Update the maximum length found
+        maxLen = MAX(maxLen, right - left + 1);
+    }
+
+    return maxLen;
+}
