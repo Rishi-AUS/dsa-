@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+char* decodeRecursive(char* s, int* i) {
+    // Initial buffer for this level of recursion
+    int capacity = 100;
+    char* res = (char*)malloc(capacity * sizeof(char));
+    int len = 0;
+    res[0] = '\0';
+
+    while (s[*i] != '\0' && s[*i] != ']') {
+        if (!isdigit(s[*i])) {
+            // Case 1: Just a letter
+            if (len + 1 >= capacity) {
+                capacity *= 2;
+                res = (char*)realloc(res, capacity);
+            }
+            res[len++] = s[(*i)++];
+            res[len] = '\0';
+        } else {
+            // Case 2: A number followed by [encoded_string]
+            int k = 0;
+            while (isdigit(s[*i])) {
+                k = k * 10 + (s[(*i)++] - '0');
+            }
+
+            (*i)++; // Skip '['
+            char* nestedRes = decodeRecursive(s, i);
+            (*i)++; // Skip ']'
+
+            // Append nestedRes to res, k times
+            int nestedLen = strlen(nestedRes);
+            int required = len + (k * nestedLen) + 1;
+            if (required > capacity) {
+                capacity = required + 100;
+                res = (char*)realloc(res, capacity);
+            }
+
+            while (k--) {
+                strcat(res, nestedRes);
+            }
+            len = strlen(res);
+            free(nestedRes);
+        }
+    }
+    return res;
+}
+
+char* decodeString(char* s) {
+    int i = 0;
+    return decodeRecursive(s, &i);
+}
