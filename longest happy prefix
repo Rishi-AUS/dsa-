@@ -1,0 +1,38 @@
+#include <string.h>
+#include <stdlib.h>
+
+char* longestPrefix(char* s) {
+    int n = strlen(s);
+    if (n <= 1) return "";
+
+    long long prefixHash = 0;
+    long long suffixHash = 0;
+    long long power = 1;
+    
+    // Prime base and mod to minimize collisions
+    const int base = 31;
+    const int mod = 1e9 + 7;
+    int longestLen = 0;
+
+    for (int i = 0; i < n - 1; i++) {
+        // Calculate prefix hash (left to right)
+        prefixHash = (prefixHash * base + (s[i] - 'a' + 1)) % mod;
+        
+        // Calculate suffix hash (right to left, relative to the end)
+        // val * (base ^ i) adds the character to the "high" end of the suffix
+        suffixHash = (suffixHash + (long long)(s[n - 1 - i] - 'a' + 1) * power) % mod;
+        
+        power = (power * base) % mod;
+
+        if (prefixHash == suffixHash) {
+            longestLen = i + 1;
+        }
+    }
+
+    // Allocate memory for the result string
+    char* result = (char*)malloc(sizeof(char) * (longestLen + 1));
+    strncpy(result, s, longestLen);
+    result[longestLen] = '\0';
+
+    return result;
+}
