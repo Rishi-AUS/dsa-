@@ -1,0 +1,55 @@
+#include <stdlib.h>
+#include <stdbool.h>
+
+int find(int* parent, int i) {
+    if (parent[i] == i) return i;
+    return parent[i] = find(parent, parent[i]);
+}
+
+bool* friendRequests(int n, int** restrictions, int restrictionsSize, int* restrictionsColSize, 
+                    int** requests, int requestsSize, int* requestsColSize, int* returnSize) {
+    
+    int* parent = (int*)malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) parent[i] = i;
+
+    bool* result = (bool*)malloc(requestsSize * sizeof(bool));
+    *returnSize = requestsSize;
+
+    for (int i = 0; i < requestsSize; i++) {
+        int u = requests[i][0];
+        int v = requests[i][1];
+        
+        int rootU = find(parent, u);
+        int rootV = find(parent, v);
+
+        if (rootU == rootV) {
+            result[i] = true;
+            continue;
+        }
+
+        // Check if merging rootU and rootV violates any restrictions
+        bool possible = true;
+        for (int j = 0; j < restrictionsSize; j++) {
+            int x = restrictions[j][0];
+            int y = restrictions[j][1];
+            int rootX = find(parent, x);
+            int rootY = find(parent, y);
+
+            // If restriction involves the two components we are trying to merge
+            if ((rootX == rootU && rootY == rootV) || (rootX == rootV && rootY == rootU)) {
+                possible = false;
+                break;
+            }
+        }
+
+        if (possible) {
+            parent[rootU] = rootV; // Actual union
+            result[i] = true;
+        } else {
+            result[i] = false;
+        }
+    }
+
+    free(parent);
+    return result;
+}
