@@ -1,0 +1,36 @@
+using System;
+using System.Collections.Generic;
+
+public class Solution {
+    public bool IsValid(string s) {
+        // If the length is odd, it can't have valid matching pairs
+        if (s.Length % 2 != 0) {
+            return false;
+        }
+
+        Stack<char> stack = new Stack<char>();
+
+        foreach (char c in s) {
+            // Push opening brackets onto the stack
+            if (c == '(' || c == '{' || c == '[') {
+                stack.Push(c);
+            } 
+            // For closing brackets, check if stack is empty or top doesn't match
+            else {
+                if (stack.Count == 0) {
+                    return false;
+                }
+
+                char open = stack.Pop();
+                if ((c == ')' && open != '(') ||
+                    (c == '}' && open != '{') ||
+                    (c == ']' && open != '[')) {
+                    return false;
+                }
+            }
+        }
+
+        // If the stack is empty, all brackets were correctly matched and closed
+        return stack.Count == 0;
+    }
+}
