@@ -1,0 +1,33 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+public class Solution {
+    public IList<string> GenerateParenthesis(int n) {
+        IList<string> result = new List<string>();
+        Backtrack(result, new StringBuilder(), 0, 0, n);
+        return result;
+    }
+
+    private void Backtrack(IList<string> result, StringBuilder current, int open, int close, int max) {
+        // Base Case: The combination is complete
+        if (current.Length == max * 2) {
+            result.Add(current.ToString());
+            return;
+        }
+
+        // We can still add an opening parenthesis
+        if (open < max) {
+            current.Append('(');
+            Backtrack(result, current, open + 1, close, max);
+            current.Remove(current.Length - 1, 1); // Backtrack
+        }
+
+        // We can only add a closing parenthesis if it matches an open one
+        if (close < open) {
+            current.Append(')');
+            Backtrack(result, current, open, close + 1, max);
+            current.Remove(current.Length - 1, 1); // Backtrack
+        }
+    }
+}
