@@ -1,0 +1,37 @@
+public class Solution {
+    public bool IsMatch(string s, string p) {
+        int sIdx = 0, pIdx = 0;
+        int starIdx = -1, matchIdx = 0;
+
+        while (sIdx < s.Length) {
+            // Case 1: Current characters match, or pattern has '?'
+            if (pIdx < p.Length && (p[pIdx] == s[sIdx] || p[pIdx] == '?')) {
+                sIdx++;
+                pIdx++;
+            }
+            // Case 2: Pattern has '*'
+            else if (pIdx < p.Length && p[pIdx] == '*') {
+                starIdx = pIdx;
+                matchIdx = sIdx;
+                pIdx++; // Greedily try matching 0 characters first
+            }
+            // Case 3: Last pattern pointer was '*', advance string pointer instead
+            else if (starIdx != -1) {
+                pIdx = starIdx + 1;
+                matchIdx++;
+                sIdx = matchIdx;
+            }
+            // Case 4: Characters don't match and no '*' exists
+            else {
+                return false;
+            }
+        }
+
+        // Check for remaining characters in pattern; they must all be '*'
+        while (pIdx < p.Length && p[pIdx] == '*') {
+            pIdx++;
+        }
+
+        return pIdx == p.Length;
+    }
+}
