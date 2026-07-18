@@ -1,0 +1,45 @@
+public class Solution {
+    private int count = 0;
+
+    public int TotalNQueens(int n) {
+        // Track columns under attack
+        bool[] cols = new bool[n];
+        // Track positive diagonals (row + col) -> Max value is (n-1) + (n-1) = 2n - 2
+        bool[] posDiag = new bool[2 * n];
+        // Track negative diagonals (row - col) -> Shifted by (n - 1) to avoid negative index
+        bool[] negDiag = new bool[2 * n];
+
+        Backtrack(0, n, cols, posDiag, negDiag);
+        return count;
+    }
+
+    private void Backtrack(int row, int n, bool[] cols, bool[] posDiag, bool[] negDiag) {
+        if (row == n) {
+            count++;
+            return;
+        }
+
+        for (int col = 0; col < n; col++) {
+            int pDiagIdx = row + col;
+            int nDiagIdx = row - col + (n - 1);
+
+            // If the current column or diagonals are under attack, skip
+            if (cols[col] || posDiag[pDiagIdx] || negDiag[nDiagIdx]) {
+                continue;
+            }
+
+            // Place the queen (mark as under attack)
+            cols[col] = true;
+            posDiag[pDiagIdx] = true;
+            negDiag[nDiagIdx] = true;
+
+            // Move to the next row
+            Backtrack(row + 1, n, cols, posDiag, negDiag);
+
+            // Remove the queen (Backtrack)
+            cols[col] = false;
+            posDiag[pDiagIdx] = false;
+            negDiag[nDiagIdx] = false;
+        }
+    }
+}
