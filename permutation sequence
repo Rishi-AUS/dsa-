@@ -1,0 +1,35 @@
+using System.Collections.Generic;
+using System.Text;
+
+public class Solution {
+    public string GetPermutation(int n, int k) {
+        List<int> numbers = new List<int>();
+        int[] factorial = new int[n + 1];
+        StringBuilder sb = new StringBuilder();
+
+        // Initialize factorials and the pool of numbers
+        int sum = 1;
+        factorial[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            sum *= i;
+            factorial[i] = sum;
+            numbers.Add(i);
+        }
+
+        // Convert k to 0-based index
+        k--;
+
+        // Determine digits step by step
+        for (int i = 1; i <= n; i++) {
+            int blockCount = factorial[n - i];
+            int index = k / blockCount;
+            
+            sb.Append(numbers[index]);
+            numbers.RemoveAt(index);
+            
+            k %= blockCount;
+        }
+
+        return sb.ToString();
+    }
+}
