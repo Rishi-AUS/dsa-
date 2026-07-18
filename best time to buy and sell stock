@@ -1,0 +1,29 @@
+using System;
+
+public class Solution {
+    public int MaxProfit(int[] prices) {
+        if (prices == null || prices.Length == 0) return 0;
+
+        // Track the maximum profit balances for first and second buy/sell steps
+        int buy1 = int.MinValue;
+        int sell1 = 0;
+        int buy2 = int.MinValue;
+        int sell2 = 0;
+
+        foreach (int price in prices) {
+            // Maximize profit after the 1st buy (spending money, so it's negative)
+            buy1 = Math.Max(buy1, -price);
+            
+            // Maximize profit after the 1st sell (adding current price to buy1 balance)
+            sell1 = Math.Max(sell1, buy1 + price);
+            
+            // Maximize profit after the 2nd buy (reinvesting profit from sell1)
+            buy2 = Math.Max(buy2, sell1 - price);
+            
+            // Maximize profit after the 2nd sell (adding current price to buy2 balance)
+            sell2 = Math.Max(sell2, buy2 + price);
+        }
+
+        return sell2;
+    }
+}
