@@ -1,0 +1,39 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     public int val;
+ *     public TreeNode left;
+ *     public TreeNode right;
+ *     public TreeNode(int val=0, TreeNode left=null, TreeNode right=null) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+public class Solution {
+    private int maxSum = int.MinValue;
+
+    public int MaxPathSum(TreeNode root) {
+        CalculateMaxGain(root);
+        return maxSum;
+    }
+
+    private int CalculateMaxGain(TreeNode node) {
+        if (node == null) return 0;
+
+        // Recursively get the max path sum from left and right subtrees.
+        // If the gain is negative, we ignore it by taking Math.Max(0, ...).
+        int leftGain = Math.Max(0, CalculateMaxGain(node.left));
+        int rightGain = Math.Max(0, CalculateMaxGain(node.right));
+
+        // Price of a new path with the current node as the highest peak (root of the path)
+        int currentPathSum = node.val + leftGain + rightGain;
+
+        // Update the global maximum path sum found so far
+        maxSum = Math.Max(maxSum, currentPathSum);
+
+        // Return the max gain the parent node can get by choosing either the left or right branch
+        return node.val + Math.Max(leftGain, rightGain);
+    }
+}
