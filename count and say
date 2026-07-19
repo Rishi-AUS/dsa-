@@ -1,0 +1,30 @@
+using System.Text;
+
+public class Solution {
+    public string CountAndSay(int n) {
+        // Base case
+        string current = "1";
+        
+        // Generate the sequence from 2 up to n
+        for (int i = 2; i <= n; i++) {
+            StringBuilder nextSequence = new StringBuilder();
+            int count = 1;
+            
+            for (int j = 0; j < current.Length; j++) {
+                // If the next character matches the current one, increment count
+                if (j + 1 < current.Length && current[j] == current[j + 1]) {
+                    count++;
+                } else {
+                    // Otherwise, append the count followed by the digit character
+                    nextSequence.Append(count);
+                    nextSequence.Append(current[j]);
+                    count = 1; // Reset count for the next group
+                }
+            }
+            
+            current = nextSequence.ToString();
+        }
+        
+        return current;
+    }
+}
