@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+
+public class Solution {
+    private IList<IList<string>> result = new List<IList<string>>();
+    private HashSet<int> cols = new HashSet<int>();
+    private HashSet<int> posDiag = new HashSet<int>(); // (row + col)
+    private HashSet<int> negDiag = new HashSet<int>(); // (row - col)
+
+    public IList<IList<string>> SolveNQueens(int n) {
+        char[][] board = new char[n][];
+        for (int i = 0; i < n; i++) {
+            board[i] = new char[n];
+            Array.Fill(board[i], '.');
+        }
+
+        Backtrack(0, n, board);
+        return result;
+    }
+
+    private void Backtrack(int row, int n, char[][] board) {
+        // Base Case: If we successfully placed queens in all rows, record the configuration
+        if (row == n) {
+            result.Add(ConstructBoard(board));
+            return;
+        }
+
+        for (int col = 0; col < n; col++) {
+            // Check if the current cell is under attack from any previously placed queen
+            if (cols.Contains(col) || posDiag.Contains(row + col) || negDiag.Contains(row - col)) {
+                continue;
+            }
+
+            // Place the queen
+            cols.Add(col);
+            posDiag.Add(row + col);
+            negDiag.Add(row - col);
+            board[row][col] = 'Q';
+
+            // Recurse to place the queen in the next row
+            Backtrack(row + 1, n, board);
+
+            // Remove the queen (Backtrack)
+            cols.Remove(col);
+            posDiag.Remove(row + col);
+            negDiag.Remove(row - col);
+            board[row][col] = '.';
+        }
+    }
+
+    private IList<string> ConstructBoard(char[][] board) {
+        List<string> currentBoard = new List<string>();
+        foreach (char[] row in board) {
+            currentBoard.Add(new string(row));
+        }
+        return currentBoard;
+    }
+}
